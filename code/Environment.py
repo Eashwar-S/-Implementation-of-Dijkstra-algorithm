@@ -38,10 +38,6 @@ def check_Obstacle(x, y):
         return True
     return False
 
-# if check_Obstacle(109,60):
-#     print("Obstacle detected!!")
-# else:
-#     print("No Obstacle!!")
 
 def draw_Explored_Nodes(x,y):
     pygame.gfxdraw.pixel(gameDisplay,x,y,red)
@@ -50,11 +46,6 @@ def draw_Explored_Nodes(x,y):
 def draw_Optimal_Nodes(x,y):
     pygame.gfxdraw.pixel(gameDisplay,x,y,blue)
     pygame.display.update()
-    # return None
-# for  x in range (50):
-#     for y in range (100):
-#         draw_Explored_Nodes(x,y)
-        # time.sleep()
 
 
 
