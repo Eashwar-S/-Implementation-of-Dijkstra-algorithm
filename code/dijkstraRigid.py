@@ -35,7 +35,7 @@ def moveUp(node, radius):
 
 def moveDown(node, radius):
     newNode = Node(0, 0, math.inf, (0, 0))
-    if node.x + 1 > 199:
+    if node.x + 1 > 299:
         return False, node
     if check_Obstacle(node.x + radius,node.y):
         return False,node
@@ -63,7 +63,7 @@ def moveLeft(node, radius):
 
 def moveRight(node, radius):
     newNode = Node(0, 0, math.inf, (0, 0))
-    if node.y + 1 > 299:
+    if node.y + 1 > 199:
         return False, node
     if check_Obstacle(node.x,node.y + radius):
         return False,node
@@ -91,7 +91,7 @@ def moveUpLeft(node, radius):
 
 def moveUpRight(node, radius):
     newNode = Node(0, 0, math.inf, (0, 0))
-    if node.x - 1 < 0 or node.y + 1 > 299:
+    if node.x - 1 < 0 or node.y + 1 > 199:
         return False, node
     if check_Obstacle(node.x - radius,node.y + radius):
         return False,node
@@ -105,7 +105,7 @@ def moveUpRight(node, radius):
 
 def moveDownLeft(node, radius):
     newNode = Node(0, 0, math.inf, (0, 0))
-    if node.x + 1 > 199 or node.y - 1 < 0:
+    if node.x + 1 > 299 or node.y - 1 < 0:
         return False, node
     if check_Obstacle(node.x + radius,node.y - radius):
         return False,node
@@ -119,7 +119,7 @@ def moveDownLeft(node, radius):
 
 def moveDownRight(node, radius):
     newNode = Node(0, 0, math.inf, (0, 0))
-    if node.x + 1 > 199 or node.y + 1 > 299:
+    if node.x + 1 > 299 or node.y + 1 > 199:
         return False, node
     if check_Obstacle(node.x + radius,node.y + radius):
         return False,node
@@ -138,20 +138,26 @@ def redundantNode(coordinate):
 
 
 def addNode(node):
-    if check_Obstacle(node.x,node.y):
+    if check_Obstacle(node.x, node.y):
         return
     else:
         if redundantNode((node.x, node.y)):
             parentList.append(node.parent)
             childList.append((node.x, node.y))
             nodeList.append(node)
+            # draw_Explored_Nodes(node.x, node.y)
+            draw_Explored_Nodes(childList[len(childList)-1][0], childList[len(childList)-1][1])
             costList.append(node.cost)
         else:
             index = childList.index((node.x, node.y))
-            if nodeList[index].cost > node.cost:
-                nodeList[index].cost = node.cost
+            # if nodeList[index].cost > node.cost:
+            #     nodeList[index].cost = node.cost
+            #     costList[index] = node.cost
+
+            #     nodeList[index].parent = node.parent
+            if costList[index] > node.cost:
                 costList[index] = node.cost
-                nodeList[index].parent = node.parent
+                parentList[index] = node.parent
 
 
 def backTracking(parent, child):
@@ -192,56 +198,56 @@ def dijkstra(node, goal, radius):
         costList.append(0)
         while True:
             status, newNode = moveLeft(node,radius)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveRight(node,radius)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveUp(node, radius)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveDown(node, radius)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveUpLeft(node, radius)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveUpRight(node, radius)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveDownLeft(node, radius)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveDownRight(node, radius)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
-            # nodeList.pop(0)
             count += 1
-            node = nodeList[count]
+            nodeList.pop(0)
+            node = nodeList[0]
             print(count)
 
 
