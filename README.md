@@ -104,3 +104,6 @@ For small distances, after finding the goal point the pygame will immediately st
 
 ### Obstacle assumption:
 In obstacle space, for rectangle obstacle which is faced at an angle of 30 degrees, we were getting decimal points as coordinates. So we round that to integer as pixel values cannot be decimals. As a result, when you give 10 or greater than 10 as clearance, the shape of the rectangle may differ.
+
+### Commits
+Commits are less due to creation of branches. Due to shortage of time, we could not merge it with master.
