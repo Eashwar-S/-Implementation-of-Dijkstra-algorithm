@@ -1,9 +1,8 @@
 
-
 import pygame
 import pygame.gfxdraw
 import math
-
+import numpy as np
 
 import time
 
@@ -19,47 +18,27 @@ blue = (0,0,255)
 scale = 1
 width= 300
 height = 200
-clearance = 10
+radius = input("Enter the Radius of the Rigid body:")
+clearance = input("Enter the Clearance required for the Rigid body:")
+totalClearance = radius + clearance
+totalClearance = int(totalClearance)
 
 gameDisplay = pygame.display.set_mode((width*scale,height*scale))
 gameDisplay.fill(black)
-display_surface = pygame.display.get_surface()
-display_surface.blit(pygame.transform.flip(display_surface, False, True), dest=(0, 0))
 
-# pixAr = pygame.PixelArray(gameDisplay)
-# pixAr[10][20] = green
 
-# pygame.draw.line(gameDisplay, blue, (100,200), (300,450),5)
-#
-# pygame.draw.rect(gameDisplay, white, (90*scale,40*scale,20*scale,20*scale))
-# #
-pygame.draw.circle(gameDisplay, white, (225*scale, height-150*scale), (25+clearance)*scale)
+pygame.draw.circle(gameDisplay, white, (225*scale, height-150*scale), (25+totalClearance)*scale)
 
-pygame.draw.polygon(gameDisplay, white, ((20-clearance,height-120+clearance),(25-clearance,height-185-clearance),(75+clearance,height-185-clearance),(100+clearance,height-150-clearance),(75+clearance,height-120+clearance),(50,height-150-clearance)))
+pygame.draw.polygon(gameDisplay, white, ((20-totalClearance,height-120+totalClearance),(25-totalClearance,height-185-totalClearance),(75+totalClearance,height-185-totalClearance),(100+totalClearance,height-150-totalClearance),(75+totalClearance,height-120+totalClearance),(50,height-150+totalClearance)))
 
-pygame.draw.polygon(gameDisplay, white, ((225,height-10+clearance),(200-clearance,height-25),(225,height-40-clearance),(250+clearance,height-25)))
+pygame.draw.polygon(gameDisplay, white, ((200-totalClearance,height-25),(225,height-40-totalClearance),(250+totalClearance,height-25),(225,height-10+totalClearance)))
 
-pygame.draw.polygon(gameDisplay, white, ((95 - math.floor((75+clearance)*math.sqrt(3)/2),height-30 - math.floor((75+clearance)/2)),(95 - math.floor((75+clearance)*math.sqrt(3)/2) + math.floor((10+clearance)*math.sqrt(1)/2),height-30 - math.floor((75+clearance)/2) - math.floor((10+clearance)*math.sqrt(3)/2)),(95 + math.floor((10 + clearance)/2),height-30 - math.floor(10*math.sqrt(3)/2)),(95 - math.floor(clearance/2),height-30+math.floor(clearance*math.sqrt(3)/2))))
+pygame.draw.polygon(gameDisplay, white, ((95 - math.floor((75+totalClearance)*math.sqrt(3)/2),height-30 - math.floor((75+totalClearance)/2)),(95 - math.floor((75+totalClearance)*math.sqrt(3)/2) + math.floor((10+totalClearance)*math.sqrt(1)/2),height-30 - math.floor((75+totalClearance)/2) - math.floor((10+totalClearance)*math.sqrt(3)/2)),(95 + math.floor((10 + totalClearance)/2),height-30 - math.floor(10*math.sqrt(3)/2)),(95 - math.floor(totalClearance/2),height-30+math.floor(totalClearance*math.sqrt(3)/2))))
 
-pygame.draw.ellipse(gameDisplay, white, (110-clearance,80 - clearance,80+ clearance,40+ clearance))
+pygame.draw.ellipse(gameDisplay, white, (110-totalClearance,80 - totalClearance,80+ 2*totalClearance,40+ 2*totalClearance))
 
-# def check_Obstacle(x, y):
-# #   For square
-#     if x>=90 and x<=110 and y>=40 and y<=60:
-#         print("Obstacle Detected")
-#         return  True
-# #   For Circle
-#     if (x-160)**2 + (y-50)**2 < 15**2:
-#         print("Obstacle Detected")
-#         return True
-#     else:
-#         print("No Obstacle Detected")
-#         return False
 
-# if check_Obstacle(109,60):
-#     print("Obstacle detected!!")
-# else:
-#     print("No Obstacle!!")
+
 def draw_Start_and_Goal_Nodes(x,y):
     pygame.gfxdraw.pixel(gameDisplay,x,y,red)
     pygame.display.update()
@@ -85,6 +64,24 @@ def calculate_Triangle_Area(x1,y1,x2,y2,x3,y3):
     area_of_whole_triangle = (abs(x1*(y2-y3)+x2*(y3-y1)+x3*(y1-y2))/2)
     return area_of_whole_triangle
 
+def line_intersection(line1, line2):
+    xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
+    ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
+
+    def det(a, b):
+        return a[0] * b[1] - a[1] * b[0]
+
+    div = det(xdiff, ydiff)
+    if div == 0:
+       raise Exception('lines do not intersect')
+
+    d = (det(*line1), det(*line2))
+    x = det(d, xdiff) / div
+    y = det(d, ydiff) / div
+    return x, y
+
+
+
 def get_Line_Equation(A,B,x,y):
     x1,y1 = A
     x2,y2 = B
@@ -106,29 +103,67 @@ def get_Line_Equation(A,B,x,y):
 
 def check_Obstacle(x,y):
     ########################  For circle  #############################
-    if (x - 225) ** 2 + ( height-y- 150) ** 2 <= 25 ** 2:
+    if (x - 225) ** 2 + ( height-y- 150) ** 2 <= (25+totalClearance) ** 2:
         # print("Obstacle Detected in circle")
         return True
     #########################  For ellipse  #############################
     # p=0
     # checking the equation of
     # ellipse with the given point
-    p = ((math.pow((x - 150), 2) / math.pow(40, 2)) +
-         (math.pow(( height - y - 100), 2) / math.pow(20, 2)))
+    p = ((math.pow((x - 150), 2) / math.pow(40+totalClearance, 2)) +
+         (math.pow(( height - y - 100), 2) / math.pow(20+totalClearance, 2)))
     # print("P:",p)
     if p<=1:
         # print("Obstacle Detected in ellipse")
         return True
 
 
-    # polygon_coordinates = [(20,height - 120),(25,height - 185),(75,height-185),(100,height-150),(75,height-120),(50,height - 150)]
-    parallelogram_coordinates = [(200,height-25),(225,height-40),(250,height-25),(225,height-10)]
-    rectangle_coordinates = [(30,height-67),(35,height-76),(100,height-38),(95,height- 30)]
+    parallelogram_coordinates = [(200-totalClearance,height-25),(225,height-(40+totalClearance)),(250+totalClearance,height-25),(225,height-(10-totalClearance))]
+    # parallelogram_coordinates = [(200,height-25),(225,height-40),(250,height-25),(225,height-10)]
+    # rectangle_coordinates = [(30,height-67),(35,height-76),(100,height-38),(95,height- 30)]
+    rectangle_coordinates = [(95 - math.floor((75+totalClearance)*math.sqrt(3)/2),height-30 - math.floor((75+totalClearance)/2)),
+                             (95 - math.floor((75+totalClearance)*math.sqrt(3)/2) + math.floor((10+totalClearance)*math.sqrt(1)/2),height-30 - math.floor((75+totalClearance)/2) - math.floor((10+totalClearance)*math.sqrt(3)/2)),
+                             (95 + math.floor((10 + totalClearance)/2),height-30 - math.floor(10*math.sqrt(3)/2)),
+                             (95 - math.floor(totalClearance/2),height-30+math.floor(totalClearance*math.sqrt(3)/2))]
+# jj= [(20-clearance,height-120+clearance),(25-clearance,height-185-clearance),(75+clearance,height-185-clearance),(100+clearance,height-150-clearance),(75+clearance,height-120+clearance),(50,height-150-clearance)]
+    triangle_1_coordinates = [(20-totalClearance,height-120+totalClearance),(25-totalClearance,height-185-totalClearance), (50,height-150+totalClearance)]
+    triangle_2_coordinates = [(25-totalClearance,height-185-totalClearance),(75+totalClearance,height-185-totalClearance), (50,height-150+totalClearance)]
+    triangle_3_coordinates = [(75+totalClearance,height-185-totalClearance),(100+totalClearance,height-150-totalClearance), (50,height-150+totalClearance)]
+    triangle_4_coordinates = [(100+totalClearance,height-150-totalClearance), (75+totalClearance,height-120+totalClearance),   (50,height-150+totalClearance)]
 
-    triangle_1_coordinates = [(20,height - 120),(25,height - 185), (50, height - 150)]
-    triangle_2_coordinates = [(25,height - 185),(75,height - 185), (50, height - 150)]
-    triangle_3_coordinates = [(75,height - 185),(100,height -150), (50, height - 150)]
-    triangle_4_coordinates = [(100,height-150), (75,height-120),   (50, height - 150)]
+    # triangle_1_coordinates = [(20,height - 120),(25,height - 185), (50, height - 150)]
+    # triangle_2_coordinates = [(25,height - 185),(75,height - 185), (50, height - 150)]
+    # triangle_3_coordinates = [(75,height - 185),(100,height -150), (50, height - 150)]
+    # triangle_4_coordinates = [(100,height-150), (75,height-120),   (50, height - 150)]
+
+
+    # A1 = (20 - clearance, height - (120 - clearance) )
+    # A2 = (20 +clearance, height - (120 - clearance))
+    # B1 = (25 - clearance, height - (185 + clearance) )
+    # B2 = (25 + clearance, height - (185 + clearance))
+    # C2 = (75 + clearance , height - (185 + clearance))
+    # C3 = (75 + clearance, height - (185 + clearance) )
+    # D =  (100 + clearance, height - 150)
+    # E3 = (75 + clearance, height - (120 - clearance) )
+    # E4 = (75 - clearance , height - (120 - clearance))
+    # F = (50 , height - (150 + clearance))
+    #
+    # test_coord = [(A1,B1 ),(A2,F),(B2,C2),(C3,D),(D,E3),(E4,F)]
+    # print(line_intersection(test_coord[0],test_coord[1]))
+    # # triangle_1_coordinates = [(20 - clearance, height - (120 - clearance)), (25 - clearance, height - (185 + clearance)),
+    # #                           (50 + clearance, height - (150 + clearance))]
+    # triangle_1_coordinates = [(np.floor(line_intersection(test_coord[0],test_coord[1])[0]),np.floor(line_intersection(test_coord[0],test_coord[1])[1])),
+    #                           (np.floor(line_intersection(test_coord[0],test_coord[2])[0]),np.floor(line_intersection(test_coord[0],test_coord[2])[1])),
+    #                           (np.floor(line_intersection(test_coord[1],test_coord[5])[0]),np.floor(line_intersection(test_coord[1],test_coord[5])[1]))]
+    # triangle_2_coordinates = [(np.floor(line_intersection(test_coord[0],test_coord[2])[0]),np.floor(line_intersection(test_coord[0],test_coord[2])[1])),
+    #                           (np.floor(line_intersection(test_coord[2], test_coord[3])[0]),np.floor(line_intersection(test_coord[2], test_coord[3])[1])),
+    #                           (np.floor(line_intersection(test_coord[1],test_coord[5])[0]),np.floor(line_intersection(test_coord[1],test_coord[5])[1]))]
+    # triangle_3_coordinates = [(np.floor(line_intersection(test_coord[2], test_coord[3])[0]),np.floor(line_intersection(test_coord[2], test_coord[3])[1])),
+    #                           (np.floor(line_intersection(test_coord[3],test_coord[4])[0]),np.floor(line_intersection(test_coord[3],test_coord[4])[1])),
+    #                           (np.floor(line_intersection(test_coord[1],test_coord[5])[0]),np.floor(line_intersection(test_coord[1],test_coord[5])[1]))]
+    # triangle_4_coordinates = [(np.floor(line_intersection(test_coord[3],test_coord[4])[0]),np.floor(line_intersection(test_coord[3],test_coord[4])[1])),
+    #                           (np.floor(line_intersection(test_coord[4],test_coord[5])[0]),np.floor(line_intersection(test_coord[4],test_coord[5])[1])),
+    #                           (np.floor(line_intersection(test_coord[1],test_coord[5])[0]),np.floor(line_intersection(test_coord[1],test_coord[5])[1]))]
 
     half_plane_val_tri1= []
     for i in range(len(triangle_1_coordinates)):
@@ -292,6 +327,3 @@ def check_Obstacle(x,y):
 #     else:
 #         print("No Obstacle Detected")
 #         return False
-
-
-
