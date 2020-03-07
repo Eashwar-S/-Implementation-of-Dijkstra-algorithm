@@ -1,5 +1,5 @@
 import math
-from Environment import *
+from Environment_rigid import *
 import time
 
 nodeList = []
@@ -7,6 +7,7 @@ parentList = []
 childList = []
 costList = []
 
+flag= False
 height = 200
 # Node declaration
 # Setting boundary as 300x200
@@ -36,7 +37,7 @@ def moveUp(node):
 
 def moveDown(node):
     newNode = Node(0, 0, math.inf, (0, 0))
-    if node.x + 1 > 199:
+    if node.x + 1 > 299:
         return False, node
     if check_Obstacle(node.x, node.y):
         return False, node
@@ -64,7 +65,7 @@ def moveLeft(node):
 
 def moveRight(node):
     newNode = Node(0, 0, math.inf, (0, 0))
-    if node.y + 1 > 299:
+    if node.y + 1 > 199:
         return False, node
     if check_Obstacle(node.x, node.y):
         return False, node
@@ -92,7 +93,7 @@ def moveUpLeft(node):
 
 def moveUpRight(node):
     newNode = Node(0, 0, math.inf, (0, 0))
-    if node.x - 1 < 0 or node.y + 1 > 299:
+    if node.x - 1 < 0 or node.y + 1 > 199:
         return False, node
     if check_Obstacle(node.x, node.y):
         return False, node
@@ -106,7 +107,7 @@ def moveUpRight(node):
 
 def moveDownLeft(node):
     newNode = Node(0, 0, math.inf, (0, 0))
-    if node.x + 1 > 199 or node.y - 1 < 0:
+    if node.x + 1 > 299 or node.y - 1 < 0:
         return False, node
     if check_Obstacle(node.x, node.y):
         return False, node
@@ -120,7 +121,7 @@ def moveDownLeft(node):
 
 def moveDownRight(node):
     newNode = Node(0, 0, math.inf, (0, 0))
-    if node.x + 1 > 199 or node.y + 1 > 299:
+    if node.x + 1 > 299 or node.y + 1 > 199:
         return False, node
     if check_Obstacle(node.x, node.y):
         return False, node
@@ -146,15 +147,19 @@ def addNode(node):
             parentList.append(node.parent)
             childList.append((node.x, node.y))
             nodeList.append(node)
-            draw_Explored_Nodes(node.x, node.y)
+            # draw_Explored_Nodes(node.x, node.y)
+            # draw_Explored_Nodes(childList[len(childList)-1][0], childList[len(childList)-1][1])
             costList.append(node.cost)
         else:
             index = childList.index((node.x, node.y))
-            if nodeList[index].cost > node.cost:
-                nodeList[index].cost = node.cost
-                costList[index] = node.cost
+            # if nodeList[index].cost > node.cost:
+            #     nodeList[index].cost = node.cost
+            #     costList[index] = node.cost
 
-                nodeList[index].parent = node.parent
+            #     nodeList[index].parent = node.parent
+            if costList[index] > node.cost:
+                costList[index] = node.cost
+                parentList[index] = node.parent
 
 
 def backTracking(parent, child):
@@ -176,7 +181,7 @@ def backTracking(parent, child):
 def goalReached(node, goal):
     if (node.x, node.y) == goal:
         addNode(node)
-        print('goal reached')
+        print('Goal Reached')
         print('Cost took to reach the goal is: ' + str(node.cost))
         return True
     return False
@@ -184,92 +189,133 @@ def goalReached(node, goal):
 
 def dijkstra(node, goal):
     count = 0
+    state = False
     if goalReached(node, goal):
         return
     if check_Obstacle(node.x, node.y) and check_Obstacle(goal[0], goal[1]):
         return
     else:
-
         nodeList.append(node)
         parentList.append((0, 0))
         childList.append((node.x, node.y))
         costList.append(0)
         while True:
             status, newNode = moveLeft(node)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveRight(node)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveUp(node)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveDown(node)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveUpLeft(node)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveUpRight(node)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveDownLeft(node)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
             status, newNode = moveDownRight(node)
-            if goalReached(newNode, goal):
-                break
-            else:
-                if status:
+            if status:
+                if goalReached(newNode, goal):
+                    break
+                else:
                     addNode(newNode)
-            # nodeList.pop(0)
             count += 1
-            node = nodeList[count]
-            print(count)
+            nodeList.pop(0)
+            node = nodeList[0]
+            # print(count)
 
+def get_User_Input(node):
+    axis = ["X", "Y"]
+
+    flag = False
+    final_input = np.zeros(2)
+    while flag is False:
+        count = 0
+        for a in axis:
+            input_val = input("\nEnter the value of " + str(node)+ " "+ str(a) + " co-ordinate:")
+            if len(input_val) is 0:
+                print("You need to enter a value in range [0-299]. Don't leave a number blank!!!")
+                flag = False
+                break
+            if a == "X":
+                if int(input_val)<0 or int(input_val)>299:
+                    flag = False
+                    print("Entered input is out of bounds. Please enter a valid input!!")
+                    break
+                else:
+                    flag =True
+                    final_input[count] = np.array(int(input_val))
+            if a == "Y":
+                if int(input_val)<0 or int(input_val)>199:
+                    flag = False
+                    print("Entered input is out of bounds. Please enter a valid input!!")
+                    break
+                else:
+                    flag =True
+                    final_input[count] = np.array(int(input_val))
+            count = count+1
+    return final_input #np.reshape(final_input,(3,3))
 
 # Passing inputs
 simulation = False
-node = Node(5, height -5, 0, (0, 0))
-goal = (295, height - 195)
+start = get_User_Input("Start Node")
+end = get_User_Input("Goal Node")
+
+node = Node(int(start[0]), height -int(start[1]), 0, (0, 0))
+goal = (int(end[0]), height - int(end[1]))
 start_time = time.time()
 draw_Start_and_Goal_Nodes(goal[0],goal[1])
 if check_Obstacle(goal[0], goal[1]):
     print("Goal cannot be reached")
 else:
-    dijkstra(node, goal)
-nodepath = backTracking(parentList, childList)
-simulation = True
+    try:
+        print("Exploring nodes...")
+        dijkstra(node, goal)
+    except:
+        print("The radius and clearance is too Big!! Goal cannot be reached !!")
+        flag= True
+    if flag is False:
+        print("Backtracking...")
+        nodepath = backTracking(parentList, childList)
+    simulation = False
 
-for node in nodeList:
-    draw_Explored_Nodes(node.x, node.y)
-
-for pixel in nodepath:
-    draw_Optimal_Nodes(pixel[0], pixel[1])
+    for node in childList:
+        draw_Explored_Nodes(node[0], node[1])
+    if flag is False:
+        for pixel in nodepath:
+            draw_Optimal_Nodes(pixel[0], pixel[1])
 end_time= time.time()
 print("Total time taken", end_time-start_time)
-while True:
+while simulation is False:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
